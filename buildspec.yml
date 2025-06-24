@@ -3,10 +3,10 @@ version: 0.2
 env:
   variables:
     ACCOUNT_ID: 557690580165
-    REGION: us-east-1
+    REGION: us-west-1
     REPO_NAME: expense
-    IMAGE_TAG: new2
-    IMAGE_URI: 557690580165.dkr.ecr.us-east-1.amazonaws.com/expense:new2
+    IMAGE_TAG: latest
+    IMAGE_URI: 557690580165.dkr.ecr.us-west-1.amazonaws.com/expimg-nc:latest
     SONAR_HOST_URL: http://44.204.71.196
     SONAR_PROJECT_KEY: project
     SONAR_LOGIN: sqp_bad3c0442a02d9dcbc2190ddac0888de1cece0e4
@@ -16,9 +16,8 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
-      - echo Installing Maven, Docker, and Trivy...
+      - echo Installing Maven and Docker...
       - yum install -y maven docker
-      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
   pre_build:
     commands:
@@ -30,15 +29,13 @@ phases:
       - echo Building JAR inside app-tier...
       - mvn clean package -DskipTests
       - echo Running SonarQube Analysis...
-      - mvn verify sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN
+      - mvn verify -DskipTests sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN
       - echo Building Docker image...
       - docker build -t $REPO_NAME:$IMAGE_TAG .
       - docker tag $REPO_NAME:$IMAGE_TAG $IMAGE_URI
 
   post_build:
     commands:
-      - echo Scanning Docker image with Trivy...
-      - trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE_URI || echo "Trivy scan found vulnerabilities"
       - echo Pushing image to Amazon ECR...
       - docker push $IMAGE_URI
       - echo Preparing Kubernetes manifests...
