@@ -75,6 +75,7 @@ It includes EKS clusters, private RDS databases, CI/CD with CodePipeline, monito
 - **EventBridge** rule captures CodePipeline failure events and triggers:
   - **SNS topic** or
   - **Lambda function** to send an email notification
+![cloudwatch](images/cloudwatch.png)
 
 ---
 
