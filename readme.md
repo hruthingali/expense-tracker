@@ -98,7 +98,7 @@ It includes EKS clusters, private RDS databases, CI/CD with CodePipeline, monito
 ---
 
 ## File Structure
-
+```
 .
 ├── src/                            # Application source code (Java/Spring Boot)
 │   └── main/
